@@ -77,13 +77,82 @@
             <p>...</p>
             <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a></p>
         </div>
+        <div class="subscription"></div>
     </div>
 </div>
 <script>
+
+    /**
+     * Function converts url to Unit8Array
+     *
+     * @param base64String
+     * @returns {Uint8Array}
+     */
+    function urlB64ToUint8Array(base64String) {
+        var padding = '='.repeat((4 - base64String.length % 4) % 4);
+        var base64 = (base64String + padding)
+            .replace(/\-/g, '+')
+            .replace(/_/g, '/');
+
+        var rawData = window.atob(base64);
+        var outputArray = new Uint8Array(rawData.length);
+
+        for (var i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+    }
+
+    /**
+     * Function subscribes the user client to ask for push notification permission
+     *
+     * @param sw
+     * @returns {Promise}
+     */
+    function subscribeUser(sw){
+        var applicationServerKey = urlB64ToUint8Array('BG6VniaUggRWYVHPEdJ6HCJ-Cf39wvxb2xZozvMSW2h_V9h83VGwXotcPEac7R-W6Uxzac3cog_ij4-HGJdXX-8');
+        return sw.pushManager.subscribe({
+            userVisibleOnly : true,
+            applicationServerKey : applicationServerKey
+        })
+    }
+
+    var a;
+
+
     if (navigator.serviceWorker) {
         navigator.serviceWorker.register('sw.js')
-            .then(function (registration) {
-                console.log('Service worker registration successful', registration);
+            .then(function (swRegistration) {
+                console.log('Service worker registration successful', swRegistration);
+
+                swRegistration.pushManager.getSubscription()
+                    .then(function(subscription){
+                        console.log(subscription);
+
+                        var isSubscribed = !(subscription === null);
+                        if(isSubscribed){
+                            console.log('User IS subscribed');
+                        }else{
+                            console.log('User NOT subscribed');
+
+                            //subscribing user
+                            //if permission is denied
+                            if(Notification.permission === 'denied'){
+                                alert('Push Messaging disabled. Please enable it');
+                            }else{
+                                subscribeUser(swRegistration)
+                                    .then(function(subscription){
+
+                                        a = subscription;
+                                        console.log(subscription);
+                                        console.log(JSON.stringify(subscription));
+                                        document.querySelector('.subscription').textContent = JSON.stringify(subscription);
+                                    });
+                            }
+                        }
+                    })
+
+
             })
             .catch(function (err) {
                 alert('Service worker registration failed. Please see console');

@@ -60,4 +60,20 @@ self.addEventListener('fetch', function (event) {
     );
 });
 
+self.addEventListener('push', function(event){
+    console.log('Push received');
+
+    console.log(event);
+
+    var content = {
+        body : 'This is the body content',
+        icon : 'images/launcher-icon-2x.png'
+    };
+
+    var title = "Push Notificaion Title";
+    console.log(event.data.text());
+
+    event.waitUntil(self.registration.showNotification(title, content));
+});
+
 
