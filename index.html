@@ -76,8 +76,17 @@
             <h1>Hello, world!</h1>
             <p>...</p>
             <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a></p>
+            <p><a class="btn btn-primary btn-lg" id="offlineContent" href="#" role="button">Get Offline content</a></p>
         </div>
         <div class="subscription"></div>
+    </div>
+    <div class="row">
+        <div class="col-xs-6 col-md-3">
+            <a href="#" class="thumbnail">
+
+            </a>
+        </div>
+        ...
     </div>
 </div>
 <script>
@@ -125,40 +134,57 @@
             .then(function (swRegistration) {
                 console.log('Service worker registration successful', swRegistration);
 
-                swRegistration.pushManager.getSubscription()
-                    .then(function(subscription){
-                        console.log(subscription);
-
-                        var isSubscribed = !(subscription === null);
-                        if(isSubscribed){
-                            console.log('User IS subscribed');
-                            document.querySelector('.subscription').textContent = JSON.stringify(subscription);
-                        }else{
-                            console.log('User NOT subscribed');
-
-                            //subscribing user
-                            //if permission is denied
-                            if(Notification.permission === 'denied'){
-                                alert('Push Messaging disabled. Please enable it');
-                            }else{
-                                subscribeUser(swRegistration)
-                                    .then(function(subscription){
-
-                                        a = subscription;
-                                        console.log(subscription);
-                                        console.log(JSON.stringify(subscription));
-                                        document.querySelector('.subscription').textContent = JSON.stringify(subscription);
-                                    });
-                            }
-                        }
-                    })
-
-
             })
             .catch(function (err) {
                 alert('Service worker registration failed. Please see console');
                 console.log('Service worker failed', err);
-            })
+            });
+
+
+        navigator.serviceWorker.ready.then(function (swRegistration) {
+
+            if(window.SyncManager){
+
+                //backgroung syncing
+                $('#offlineContent').on('click', function(){
+                    swRegistration.sync.register('backgroundSyncImage')
+                        .catch(function(e){
+                            console.log('Unable to fetch content ', e);
+                        });
+                });
+            }else{
+                alert('Syncing not supported');
+            }
+
+            //setting push notification
+            swRegistration.pushManager.getSubscription()
+                .then(function(subscription){
+                    console.log(subscription);
+
+                    var isSubscribed = !(subscription === null);
+                    if(isSubscribed){
+                        console.log('User IS subscribed');
+                        document.querySelector('.subscription').textContent = JSON.stringify(subscription);
+                    }else{
+                        console.log('User NOT subscribed');
+
+                        //subscribing user
+                        //if permission is denied
+                        if(Notification.permission === 'denied'){
+                            alert('Push Messaging disabled. Please enable it');
+                        }else{
+                            subscribeUser(swRegistration)
+                                .then(function(subscription){
+
+                                    a = subscription;
+                                    console.log(subscription);
+                                    console.log(JSON.stringify(subscription));
+                                    document.querySelector('.subscription').textContent = JSON.stringify(subscription);
+                                });
+                        }
+                    }
+                })
+        });
     } else {
         alert('Service Worker not supported');
     }

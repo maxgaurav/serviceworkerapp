@@ -76,4 +76,15 @@ self.addEventListener('push', function(event){
     event.waitUntil(self.registration.showNotification(title, content));
 });
 
+self.addEventListener('sync', function(event){
+    //backgroung syncing
+    if(event.tag === "backgroundSyncImage"){
+        event.waitUntil(
+            fetch('images/launcher-icon-4x-sync.png')
+        )
+    }
+});
+
+
+
 
