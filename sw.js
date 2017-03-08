@@ -2,7 +2,7 @@ var currentDate = '';
 
 var CACHES_NAMES = ['v1'];
 
-var url = '/';
+var url = '/serviceworkerapp/';
 
 var urlsToCache = [
     url + 'css/bootstrap.min.css',
@@ -66,7 +66,7 @@ self.addEventListener('push', function(event){
     console.log(event);
 
     var content = {
-        body : 'This is the body content',
+        body : (event.data.text()) || 'This is the body content(none given)',
         icon : 'images/launcher-icon-2x.png'
     };
 
