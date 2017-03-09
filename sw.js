@@ -1,6 +1,6 @@
 var currentDate = '';
 
-var CACHES_NAMES = ['v1'];
+var CACHES_NAMES = ['v2'];
 
 var url = '/serviceworkerapp/';
 
@@ -8,7 +8,8 @@ var urlsToCache = [
     url + 'css/bootstrap.min.css',
     url + 'js/jquery.min.js',
     url + 'js/bootstrap.min.js',
-    url + 'index.html'
+    url + 'index.html',
+    url
 ];
 
 /**
